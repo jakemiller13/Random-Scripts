@@ -33,6 +33,7 @@ lin_reg_2.fit(X_poly_2, y)
 lin_reg_2_values = lin_reg_2.coef_[0,1] * X**2 +\
     lin_reg_2.coef_[0,0] * X + lin_reg_2.intercept_
 
+# Degree is so high it seems to be wiping out everything but intercept
 poly_features_300 = PolynomialFeatures(degree = 300, include_bias = False)
 X_poly_300 = poly_features_300.fit_transform(X)
 lin_reg_300 = LinearRegression()
@@ -41,8 +42,10 @@ lin_reg_300_values = []
 for i in range(len(X)):
     value = 0
     for j in range(len(lin_reg_300.coef_[0])):
-        value += lin_reg_300.coef_[0,j] * X[i] ** (len(lin_reg_300.coef_ - j))
+        value += lin_reg_300.coef_[0,j] * X[i] ** (j + 1)
+    print('value before: ' + str(value))
     value += lin_reg_300.intercept_
+    print('value after: ' + str(value))
     lin_reg_300_values.append(value)
 
 print('Degree: 1 || ' + 'Intercept: ' + str(lin_reg_1.intercept_) +
