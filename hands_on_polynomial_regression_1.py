@@ -42,9 +42,11 @@ lin_reg_300_values = []
 for i in range(len(X)):
     value = 0
     for j in range(len(lin_reg_300.coef_[0])):
-        value += lin_reg_300.coef_[0,j] * X[i] ** (j + 1)
+        value += lin_reg_300.coef_[0,j] * X[i,0] ** (j + 1)
+    print('before: ' + str(type(value)))
     print('value before: ' + str(value))
-    value += lin_reg_300.intercept_
+    value += lin_reg_300.intercept_[0]
+    print('after: ' + str(type(value)))
     print('value after: ' + str(value))
     lin_reg_300_values.append(value)
 
