@@ -108,7 +108,7 @@ opt = tf.train.AdamOptimizer().minimize(mse)
 # Make session, run initializer
 net = tf.Session()
 # try both of these:
-# net = tf.InteractiveSession()
+#net = tf.InteractiveSession()
 net.run(tf.global_variables_initializer())
 
 # Setup interactive plot
@@ -119,9 +119,11 @@ line1, = ax1.plot(y_test) #not familiar with comma notation
 line2, = ax1.plot(y_test * 0.5) #why is this useful?
 plt.show()
 
-# Set number of epochs and batch size
+# Set number of epochs and batch size, fit neural net
 epochs = 10
 batch_size = 256
+mse_train = []
+mse_test = []
 
 for e in range(epochs):
     
@@ -131,7 +133,7 @@ for e in range(epochs):
     y_train = y_train[shuffle_indices]
     
     # Minibatch training
-    for i in range(0, len(y_train) // batch_size):
+    for i in range(len(y_train) // batch_size):
         start = i * batch_size
         batch_x = X_train[start : start + batch_size]
         batch_y = y_train[start : start + batch_size]
@@ -141,8 +143,18 @@ for e in range(epochs):
         
         # Print out progress
         if np.mod(i, 5) == 0: #necessary to use np.mod here? % works as well
+            
+            # MSE train/test
+            mse_train.append(net.run(mse, feed_dict =
+                                     {X : X_train, Y : y_train}))
+            mse_test.append(net.run(mse, feed_dict =
+                                    {X : X_test, Y: y_test}))
+            print('MSE Train: ', mse_train[-1])
+            print('MSE Test: ', mse_test[-1])
+            # Prediction
             pred = net.run(out, feed_dict = {X : X_test})
-            line2.set_ydata(pred)
+#            line2.set_ydata(pred[0])
+            plt.plot(pred[0])
             plt.title('Epoch ' + str(e) + ', Batch ' + str(i))
 #            file_name = 'img/epoch_' + str(e) + '_batch_' + str(i) + '.jpg'
             file_name = 'Plots/epoch_{}_batch_{}.jpg'.format(e, i)
