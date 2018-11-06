@@ -54,7 +54,7 @@ y_train = data_train[:, 0]
 y_test = data_test[:, 0]
 
 # Model architecture parameters
-n_stocks = 500
+n_stocks = X_train.shape[1]
 n_neurons_1 = 1024
 n_neurons_2 = 512
 n_neurons_3 = 256
@@ -95,3 +95,60 @@ hidden_2 = tf.nn.relu(tf.add(tf.matmul(hidden_1, W_hidden_2), bias_hidden_2))
 hidden_3 = tf.nn.relu(tf.add(tf.matmul(hidden_2, W_hidden_3), bias_hidden_3))
 hidden_4 = tf.nn.relu(tf.add(tf.matmul(hidden_3, W_hidden_4), bias_hidden_4))
 out = tf.transpose(tf.add(tf.matmul(hidden_4, W_out), bias_out))
+
+# Cost function (mean squared error)
+mse = tf.reduce_mean(tf.squared_difference(out, Y))
+# try this afterwards:
+# error = out - Y
+# mse = tf.reduce_mean(tf.square(error))
+
+# Optimizer
+opt = tf.train.AdamOptimizer().minimize(mse)
+
+# Make session, run initializer
+net = tf.Session()
+# try both of these:
+# net = tf.InteractiveSession()
+net.run(tf.global_variables_initializer())
+
+# Setup interactive plot
+plt.ion()
+fig = plt.figure()
+ax1 = fig.add_subplot(111)
+line1, = ax1.plot(y_test) #not familiar with comma notation
+line2, = ax1.plot(y_test * 0.5) #why is this useful?
+plt.show()
+
+# Set number of epochs and batch size
+epochs = 10
+batch_size = 256
+
+for e in range(epochs):
+    
+    # Shuffle training data
+    shuffle_indices = np.random.permutation(np.arange(len(y_train)))
+    X_train = X_train[shuffle_indices]
+    y_train = y_train[shuffle_indices]
+    
+    # Minibatch training
+    for i in range(0, len(y_train) // batch_size):
+        start = i * batch_size
+        batch_x = X_train[start : start + batch_size]
+        batch_y = y_train[start : start + batch_size]
+        
+        # Run optimizer with batch
+        net.run(opt, feed_dict = {X : batch_x, Y : batch_y})
+        
+        # Print out progress
+        if np.mod(i, 5) == 0: #necessary to use np.mod here? % works as well
+            pred = net.run(out, feed_dict = {X : X_test})
+            line2.set_ydata(pred)
+            plt.title('Epoch ' + str(e) + ', Batch ' + str(i))
+#            file_name = 'img/epoch_' + str(e) + '_batch_' + str(i) + '.jpg'
+            file_name = 'Plots/epoch_{}_batch_{}.jpg'.format(e, i)
+            plt.savefig(file_name)
+            plt.pause(0.01) #why the pause? test with/without
+
+# Print final MSE after training
+mse_final = net.run(mse, feed_dict = {X : X_test, Y : y_test})
+print(mse_final)
