@@ -153,10 +153,8 @@ for e in range(epochs):
             print('MSE Test: ', mse_test[-1])
             # Prediction
             pred = net.run(out, feed_dict = {X : X_test})
-#            line2.set_ydata(pred[0])
             plt.plot(pred[0])
             plt.title('Epoch ' + str(e) + ', Batch ' + str(i))
-#            file_name = 'img/epoch_' + str(e) + '_batch_' + str(i) + '.jpg'
             file_name = 'Plots/epoch_{}_batch_{}.jpg'.format(e, i)
             plt.savefig(file_name)
             plt.pause(0.01) #why the pause? test with/without
